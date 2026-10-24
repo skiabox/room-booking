@@ -30,8 +30,8 @@ export function refusalMessage(error: DomainError | StorageError): string {
     }
     case 'allowance_exceeded':
       return error.remainingMinutes > 0
-        ? `That is over your daily limit of 2 hours. You have ${error.remainingMinutes} minutes left on this day.`
-        : 'You have used your daily limit of 2 hours on this day. You have 0 minutes left.';
+        ? `That is over your 2-hour daily limit for this room. You have ${error.remainingMinutes} minutes left in this room today.`
+        : 'You have used your 2-hour daily limit for this room. You have 0 minutes left in this room today.';
     case 'storage_unavailable':
       return 'Could not save the change on this device. Check that browser storage is enabled.';
   }

@@ -91,7 +91,7 @@ describe('cancelBooking', () => {
   });
 
   it('restores the Daily Allowance: at 2 h, cancel 1 h, book 1 h succeeds', () => {
-    const list = [mk('a', { startSlot: 2, slotCount: 2 }), mk('b', { startSlot: 6, slotCount: 2, roomId: 'large' })];
+    const list = [mk('a', { startSlot: 2, slotCount: 2 }), mk('b', { startSlot: 6, slotCount: 2 })];
     const request = mk('c', { startSlot: 10, slotCount: 2 });
     expect(createBooking(list, request, NOW).ok).toBe(false);
     const r = cancelBooking(list, 'a', 'Eleni K.', NOW);

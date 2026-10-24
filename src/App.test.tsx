@@ -100,14 +100,14 @@ describe('booking form', () => {
     expect(screen.getByRole('status').textContent).toContain('14:00-14:30');
   });
 
-  it('refuses when the Daily Allowance is exceeded, stating minutes remaining', () => {
+  it('allows a booking in another Room after reaching that day’s allowance elsewhere', () => {
     seed({ roomId: 'medium', date: DAY, startSlot: 0, slotCount: 3, name: 'ann' });
     render(<Harness />);
     open('Small', '14:00');
     fireEvent.change(form().getByLabelText('End'), { target: { value: '2' } });
     fireEvent.change(form().getByLabelText('Name'), { target: { value: 'Ann' } });
     confirm();
-    expect(form().getByRole('alert').textContent).toContain('30 minutes left');
+    expect(screen.getByRole('status').textContent).toContain('Booked Small');
   });
 
   it('refuses a blank Name and keeps the form open', () => {

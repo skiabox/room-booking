@@ -77,7 +77,12 @@ export function createBooking(
 
   const key = nameKey(name);
   const booked = bookings
-    .filter((b) => b.date === request.date && nameKey(b.name) === key)
+    .filter(
+      (b) =>
+        b.date === request.date &&
+        b.roomId === request.roomId &&
+        nameKey(b.name) === key,
+    )
     .reduce((sum, b) => sum + b.slotCount, 0);
   if (booked + slotCount > DAILY_ALLOWANCE_SLOTS) {
     const remaining = Math.max(0, DAILY_ALLOWANCE_SLOTS - booked);

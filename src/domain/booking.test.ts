@@ -229,27 +229,26 @@ describe('daily allowance', () => {
     createBooking(existing, req({ id: 'new', date: D, roomId: 'medium', startSlot: 10, name: 'Eleni K.', ...over }), NOW);
 
   it('refuses a request over the limit with the remaining minutes', () => {
-    const r = run([mine('a', 0, 3)], { slotCount: 2 });
+    const r = run([mine('a', 0, 3, { roomId: 'medium' })], { slotCount: 2 });
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.error).toEqual({ code: 'allowance_exceeded', remainingMinutes: 30 });
   });
   it('accepts exactly 2 hours in total', () => {
-    expect(run([mine('a', 0, 3)], { slotCount: 1 }).ok).toBe(true);
+    expect(run([mine('a', 0, 3, { roomId: 'medium' })], { slotCount: 1 }).ok).toBe(true);
     expect(run([], { slotCount: 4 }).ok).toBe(true);
   });
   it('refuses one more Slot after 2 hours, with 0 minutes left', () => {
-    const r = run([mine('a', 0, 4)], { slotCount: 1 });
+    const r = run([mine('a', 0, 4, { roomId: 'medium' })], { slotCount: 1 });
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.error).toEqual({ code: 'allowance_exceeded', remainingMinutes: 0 });
   });
-  it('sums across Rooms and several Bookings', () => {
+  it('does not count bookings in other Rooms toward this Room allowance', () => {
     const existing = [mine('a', 0, 1), mine('b', 2, 1, { roomId: 'large' }), mine('c', 4, 1, { roomId: 'medium' })];
     const r = run(existing, { slotCount: 2 });
-    expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error).toEqual({ code: 'allowance_exceeded', remainingMinutes: 30 });
+    expect(r.ok).toBe(true);
   });
   it('matches Names case-insensitively and ignoring surrounding spaces', () => {
-    const r = run([mine('a', 0, 4)], { name: '  ELENI k. ', slotCount: 1 });
+    const r = run([mine('a', 0, 4, { roomId: 'medium' })], { name: '  ELENI k. ', slotCount: 1 });
     expect(r.ok ? 'ok' : r.error.code).toBe('allowance_exceeded');
   });
   it('does not count other Names', () => {
@@ -259,17 +258,17 @@ describe('daily allowance', () => {
     expect(run([mine('a', 0, 4, { date: '2026-07-18' })], { slotCount: 4 }).ok).toBe(true);
   });
   it('counts finished Bookings earlier today', () => {
-    const past = mine('a', 0, 4, { date: TODAY });
+    const past = mine('a', 0, 4, { date: TODAY, roomId: 'medium' });
     const r = run([past], { date: TODAY, startSlot: 12, slotCount: 1 });
     expect(r.ok ? 'ok' : r.error.code).toBe('allowance_exceeded');
   });
   it('reports in_past before allowance when both fail', () => {
-    const full = mine('a', 0, 4, { date: TODAY });
+    const full = mine('a', 0, 4, { date: TODAY, roomId: 'medium' });
     const r = run([full], { date: TODAY, startSlot: 10, slotCount: 1 });
     expect(r.ok ? 'ok' : r.error.code).toBe('in_past');
   });
   it('never reports negative remaining minutes', () => {
-    const r = run([mine('a', 0, 3), mine('b', 4, 3)], { slotCount: 1 });
+    const r = run([mine('a', 0, 3, { roomId: 'medium' }), mine('b', 4, 3, { roomId: 'medium' })], { slotCount: 1 });
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.error).toEqual({ code: 'allowance_exceeded', remainingMinutes: 0 });
   });
